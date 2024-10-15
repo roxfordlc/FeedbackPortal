@@ -1,31 +1,30 @@
 using System.Reflection.Metadata.Ecma335;
 using API.Data;
 using API.Entities;
+using API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController(DataContext context) : ControllerBase
+    public class UsersController(IUnitOfWork unitOfWork) : BaseApiController
     {
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AppUser>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            var users = await context.Users.ToListAsync();
+            var users = await unitOfWork.UserRepository.GetUsersAsync();
 
-            return users;
+            return Ok(users);
         }
         
         [HttpGet("{id}")]
-        public async Task<ActionResult<AppUser>> GetUser(int id)
+        public async Task<ActionResult<User>> GetUser(int id)
         {
-            var user = await context.Users.FindAsync(id);
+            var user = await unitOfWork.UserRepository.GetUserByIdAsnyc(id);
 
             if (user == null) return NotFound();
 
-            return user;
+            return Ok(user);
         }
 
     }
